@@ -409,9 +409,14 @@ int ss_init_run(void)
         }
 
         /* Read RX quality metrics */
-        rssi = (int32_t)dwt_readrssi();
-        rxpacc = dwt_read16bitreg(RX_FQUAL_ID) & RX_FQUAL_RXPACC_MASK;
-        snr = (int16_t)((dwt_read16bitreg(RX_FQUAL_ID) >> 8) & 0xFF);
+        // Read RSSI from RX_FQUAL register (16-bit value at offset 0)
+        // RSSI conversion: RSSI_dBm = -(rssi_raw/2 + 113)
+        {
+            uint16 rssi_raw = dwt_read16bitoffsetreg(RX_FQUAL_ID, 0);
+            rssi = (int32_t)(-((int32_t)rssi_raw / 2) - 113);
+        }
+        rxpacc = (dwt_read32bitreg(RX_FINFO_ID) & RX_FINFO_RXPACC_MASK) >> RX_FINFO_RXPACC_SHIFT;
+        snr = (int16_t)((dwt_read16bitoffsetreg(RX_FQUAL_ID, 0) >> 8) & 0xFF);
 
         /* Check that the frame is the expected response */
         rx_buffer[ALL_MSG_SN_IDX] = 0;

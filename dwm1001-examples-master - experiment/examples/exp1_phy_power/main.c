@@ -42,6 +42,7 @@
 
 /* Forward declaration */
 static void mode_switch_monitor_task(void *pvParameter);
+static void switch_phy_mode(phy_mode_t mode);
 
 //-----------------dw1000----------------------------
 
